@@ -125,23 +125,32 @@ module.exports = {
                             .digest('hex')
 
         let sql = `SELECT * FROM m_users
-                   WHERE email = '${email}' AND password = '${password}'`
+                   WHERE email = '${email}'`
         
         sqlDB.query(sql, (err, results) => {
             if (err){
-                res.status(500).send(err)
+                return res.status(500).send(err)
             }
 
             if(results.length === 0) {
                 return res.status(403).send('NoResult')
             }
 
-            if (results[0].status === 'Suspended') {
-                return res.status(403).send('Suspended')
-            }
+            let sql2 = `SELECT * FROM m_users
+                        WHERE email = '${email}' AND password = '${password}'`
+            
+            sqlDB.query(sql2, (err2, results2) => {
+                if (err2) {
+                    return res.status(500).send(err2)
+                }
 
-            var token = createJWTToken({ ...results[0] }, { expiresIn: '24h' })
-            res.status(200).send({ ...results[0], token })
+                if (results2.length === 0) {
+                    return res.status(403).send('WrongPass')
+                }
+
+                var token = createJWTToken({ ...results2[0] }, { expiresIn: '24h' })
+                res.status(200).send({ ...results2[0], token })
+            })
         })
     },
 
