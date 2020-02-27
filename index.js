@@ -11,7 +11,8 @@ app.use(bearerToken())
 app.use(bodyParser.json())
 
 const {
-    userRouter
+    userRouter,
+    campaignRouter
 } = require('./router')
 
 app.get('/', (req, res) => {
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/user', userRouter)
+app.use('/campaign', campaignRouter)
 
 
 app.listen(port, () => console.log('API aktif di port ' + port))
