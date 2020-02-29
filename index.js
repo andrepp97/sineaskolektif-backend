@@ -9,6 +9,7 @@ const port = process.env.PORT || 2000
 app.use(cors())
 app.use(bearerToken())
 app.use(bodyParser.json())
+app.use(express.static('public'))
 
 const {
     userRouter,

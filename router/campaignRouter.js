@@ -3,6 +3,7 @@ const { campaignController } = require('../controller')
 
 const router = express.Router()
 
+router.get('/getNewCampaign', campaignController.getNewCampaign)
 router.post('/buatCampaign', campaignController.buatCampaign)
 
 module.exports = router
