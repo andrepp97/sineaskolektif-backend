@@ -8,7 +8,16 @@ module.exports = {
                    JOIN m_users u ON u.id = c.idUser
                    ORDER BY c.created_date DESC
                    LIMIT 3`
-        sqlDB.query(sql, req.body, (err, results) => {
+        sqlDB.query(sql, (err, results) => {
+            if (err) return res.status(500).send(err)
+
+            res.status(200).send(results)
+        })
+    },
+
+    getCampaignByUser: (req, res) => {
+        var sql = `SELECT * FROM campaign WHERE idUser = '${req.query.id}'`
+        sqlDB.query(sql, (err, results) => {
             if (err) return res.status(500).send(err)
 
             res.status(200).send(results)
