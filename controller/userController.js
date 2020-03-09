@@ -4,7 +4,8 @@ const { createJWTToken } = require('../helpers/jwt')
 const { transporter } = require('../helpers/mailer')
 
 const secret = 'sineas'
-const address = 'http://localhost:3000'
+// const address = 'http://localhost:3000'
+const address = 'https://sineaskolektif-frontend.now.sh'
 
 module.exports = {
 
@@ -102,8 +103,6 @@ module.exports = {
             sql = `SELECT * FROM m_users WHERE email = '${req.email}'`
             sqlDB.query(sql, (err, results) => {
                 if (err) return res.status(500).send(err)
-
-                // console.log('Hasil ', results)
                 
                 var token = createJWTToken({
                     ...results[0]
