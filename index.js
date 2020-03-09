@@ -13,7 +13,8 @@ app.use(express.static('public'))
 
 const {
     userRouter,
-    campaignRouter
+    campaignRouter,
+    pollingRouter
 } = require('./router')
 
 app.get('/', (req, res) => {
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 
 app.use('/user', userRouter)
 app.use('/campaign', campaignRouter)
+app.use('/polling', pollingRouter)
 
 
 app.listen(port, () => console.log('API aktif di port ' + port))
