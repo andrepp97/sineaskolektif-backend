@@ -3,6 +3,30 @@ const { sqlDB } = require('../database')
 const { uploader } = require('../helpers/uploader')
 
 module.exports = {
+    getAllCampaign: (req, res) => {
+        var sql = `SELECT c.*, u.username
+                   FROM campaign c
+                   JOIN m_users u ON u.id = c.idUser
+                   ORDER BY c.created_date DESC`
+        sqlDB.query(sql, (err, results) => {
+            if (err) return res.status(500).send(err)
+
+            res.status(200).send(results)
+        })
+    },
+
+    getCampaignById: (req, res) => {
+        var sql = `SELECT c.*, u.username
+                   FROM campaign c
+                   JOIN m_users u ON u.id = c.idUser
+                   WHERE c.id = ${req.query.id}`
+        sqlDB.query(sql, (err, results) => {
+            if (err) return res.status(500).send(err)
+
+            res.status(200).send(results[0])
+        })
+    },
+
     getNewCampaign: (req, res) => {
         var sql = `SELECT c.*, u.username
                    FROM campaign c
