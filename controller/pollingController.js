@@ -62,55 +62,60 @@ module.exports = {
                 }
 
                 // SELECT ID TERAKHIR POLLING
-                sql = `SELECT id
-                       FROM polling
-                       WHERE idUser = '${data.idUser}'
-                       ORDER BY id DESC LIMIT 1`
+                sql = `SELECT last_insert_id() as lastId`
                 sqlDB.query(sql, (err, results) => {
                     if (err) {
-                        fs.unlinkSync(`./public${imgPath}`)
+                        console.log('Error di LAST INSERT ID POLLING')
                         return res.status(500).send(err)
                     }
-
-                    let idPolling = results[0].id
                     
-                    var sql2 = '',
-                        sql3 = ''
+                    let idPolling = results[0].lastId
+                    
+                    var sql2 = 'INSERT INTO polling_questions (idPolling, question) VALUES ',
+                        sql3 = 'INSERT INTO polling_options (idQuestion, option_string) VALUES ',
                         idQ = 0
-
-                    var sqlQ = `SELECT count(id) as numb FROM polling_questions`
+                    
+                    var sqlQ = `SELECT max(id) as numb FROM polling_questions`
                     sqlDB.query(sqlQ, (err, results) => {
                         if (err) {
+                            console.log('Error di GET LAST QUESTION ID')
                             return res.status(500).send(err)
                         }
                         idQ = results[0].numb + 1
-                    })
 
-                    // INSERT POLLING QUESTIONS
-                    for (let i = 0; i < questions.length; i++) {
-                        sql2 = `INSERT INTO polling_questions (idPolling, question) VALUES ('${idPolling}', '${questions[i].question}')`
-                        sqlDB.query(sql2, (err, results) => {
-                            if (err) {
-                                return res.status(500).send(err)
+                        // POLLING QUESTIONS
+                        for (let i = 0; i < questions.length; i++) {
+                            if (i === questions.length - 1) {
+                                sql2 += `('${idPolling}', '${questions[i].question}')`
+                            } else {
+                                sql2 += `('${idPolling}', '${questions[i].question}'),`
                             }
 
+                            // POLLING OPTIONS
                             var options = questions[i].options
-
                             for (let j = 0; j < options.length; j++) {
-                                sql3 = `INSERT INTO polling_options (idQuestion, option_string) VALUES (${idQ}, '${options[j]}')`
-                                sqlDB.query(sql3, (err, results) => {
-                                    if (err) {
-                                        return res.status(500).send(err)
-                                    }
-
-                                    return true
-                                })
+                                if (j === options.length - 1 && i === questions.length - 1) {
+                                    sql3 += `(${idQ}, '${options[j]}')`
+                                } else {
+                                    sql3 += `(${idQ}, '${options[j]}'),`
+                                }
                             }
 
+                            // ID QUESTION +1
                             idQ += 1
+                        }
+
+                        // EXECUTE INSERT QUESTIONS & OPTIONS
+                        sqlDB.query(sql2, (err, results) => {
+                            if (err) return res.status(500).send(err)
+
+                            sqlDB.query(sql3, (err, results) => {
+                                if (err) return res.status(500).send(err)
+
+                                return res.status(200).send('OK')
+                            })
                         })
-                    }
-                    return res.status(200).send('OK')
+                    })
                 })
             })
         })
